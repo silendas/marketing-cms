@@ -49,13 +49,7 @@ public class ProductTypeService {
     }
 
     public ResponseEntity<Object> createProductType(ProductTypeDto dto) {
-        List<String> details = new ArrayList<>();
         ProductTypes productType = new ProductTypes();
-        if (dto.getName() == null || dto.getName().isEmpty()) {
-            details.add("Name tidak boleh kosong");
-            return Response.buildResponse(new GlobalDto(Message.FAILED_DEFAULT.getStatusCode(), null,
-                    Message.FAILED_DEFAULT.getMessage(), null, null, details), 1);
-        }
         productType.setName(dto.getName());
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCESSFULLY_DEFAULT.getMessage(), null, repo.save(productType), null), 0);
@@ -64,11 +58,6 @@ public class ProductTypeService {
     public ResponseEntity<Object> updateProductType(Long id, ProductTypeDto dto) {
         List<String> details = new ArrayList<>();
         ProductTypes productType = getProductType(id).get();
-        if (dto.getName() == null || dto.getName().isEmpty()) {
-            details.add("Name tidak boleh kosong");
-            return Response.buildResponse(new GlobalDto(Message.FAILED_DEFAULT.getStatusCode(), null,
-                    Message.FAILED_DEFAULT.getMessage(), null, null, details), 1);
-        }
         productType.setName(dto.getName());
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCESSFULLY_DEFAULT.getMessage(), null, repo.save(productType), null), 0);
@@ -86,11 +75,15 @@ public class ProductTypeService {
     }
 
     public ResponseEntity<Object> deleteProductType(Long id) {
-        ProductTypes productType = getProductType(id).get();
-        productType.setIsDeleted(1);
-        repo.save(productType);
+        Optional<ProductTypes> productType = getProductType(id);
+        if (!productType.isPresent()) {
+            return Response.buildResponse(new GlobalDto(Message.NOT_FOUND_DEFAULT.getStatusCode(), null,
+                    Message.NOT_FOUND_DEFAULT.getMessage(), null, null, null), 0);
+        }
+        productType.get().setIsDeleted(1);
+        repo.save(productType.get());
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCESSFULLY_DEFAULT.getMessage(), null, null, null), 1);
+                Message.SUCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
     }
 
     public Optional<ProductTypes> getProductType(Long id) {

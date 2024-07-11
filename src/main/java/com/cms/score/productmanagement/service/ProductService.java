@@ -56,9 +56,6 @@ public class ProductService {
     public ResponseEntity<Object> createProduct(ProductDto dto) {
         List<String> details = new ArrayList<>();
         Product product = new Product();
-        if (dto.getName() == null || dto.getName().isEmpty()) {
-            details.add("Name tidak boleh kosong");
-        }
         product.setName(dto.getName());
         Optional<ProductTypes> productType = getProductType(dto.getProductTypeId());
         if (productType.isPresent()) {
@@ -77,9 +74,6 @@ public class ProductService {
     public ResponseEntity<Object> updateProduct(Long id, ProductDto dto) {
         List<String> details = new ArrayList<>();
         Optional<Product> product = getProduct(id);
-        if (dto.getName() == null || dto.getName().isEmpty()) {
-            details.add("Name tidak boleh kosong");
-        }
         product.get().setName(dto.getName());
         Optional<ProductTypes> productType = getProductType(dto.getProductTypeId());
         if (productType.isPresent()) {
@@ -122,6 +116,10 @@ public class ProductService {
 
     public ResponseEntity<Object> deleteProduct(Long id) {
         Optional<Product> product = getProduct(id);
+        if (!product.isPresent()) {
+            return Response.buildResponse(new GlobalDto(Message.NOT_FOUND_DEFAULT.getStatusCode(), null,
+                    Message.NOT_FOUND_DEFAULT.getMessage(), null, null, null), 0);
+        }
         product.get().setIsDeleted(1);
         repo.save(product.get());
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,

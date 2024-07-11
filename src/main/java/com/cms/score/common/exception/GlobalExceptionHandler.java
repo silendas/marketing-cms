@@ -6,10 +6,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.cms.score.common.response.Message;
 import com.cms.score.common.response.Response;
@@ -23,12 +21,12 @@ import java.util.List;
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler extends BaseExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
         List<String> details = new ArrayList<>();
-        details.add(ex.getLocalizedMessage().toString());
+        details.add(ex.getLocalizedMessage());
 
         GlobalDto errorDetails = new GlobalDto();
         errorDetails.setMessage(Message.EXCEPTION_INTERNAL_SERVER_ERROR.getMessage());
@@ -41,8 +39,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public final ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         List<String> details = new ArrayList<>();
-        details.add(ex.getLocalizedMessage().toString());
-
+        details.add(ex.getLocalizedMessage());
 
         GlobalDto errorDetails = new GlobalDto();
         errorDetails.setMessage(Message.EXCEPTION_BAD_REQUEST.getMessage());
@@ -55,7 +52,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     public final ResponseEntity<Object> handleNullException(NullPointerException ex, WebRequest request) {
         List<String> details = new ArrayList<>();
-        details.add(ex.getLocalizedMessage().toString());
+        details.add(ex.getLocalizedMessage());
 
         GlobalDto errorDetails = new GlobalDto();
         errorDetails.setMessage(Message.EXCEPTION_BAD_REQUEST.getMessage());
@@ -65,29 +62,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return Response.buildResponse(errorDetails, 3);
     }
 
-    // @Override
-    // protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, 
-    //                                                                HttpHeaders headers, 
-    //                                                                HttpStatus status, 
-    //                                                                WebRequest request) {
-    //     List<String> errors = ex.getBindingResult()
-    //                             .getFieldErrors()
-    //                             .stream()
-    //                             .map(FieldError::getDefaultMessage)
-    //                             .collect(Collectors.toList());
-    
-    //     GlobalDto errorDetails = new GlobalDto();
-    //     errorDetails.setMessage(Message.EXCEPTION_BAD_REQUEST.getMessage(), null);
-    //     errorDetails.setStatus(Message.EXCEPTION_BAD_REQUEST.getStatusCode());
-    //     errorDetails.setDetails(errors);
-    
-    //     return Response.buildResponse(errorDetails, HttpStatus.BAD_REQUEST.value());
-    // }
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public final ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex, WebRequest request) {
         List<String> details = new ArrayList<>();
-        details.add(ex.getLocalizedMessage().toString());
+        details.add(ex.getLocalizedMessage());
 
         GlobalDto errorDetails = new GlobalDto();
         errorDetails.setMessage(Message.EXCEPTION_BAD_REQUEST.getMessage());
@@ -108,5 +86,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return Response.buildResponse(errorDetails, 3);
     }
-
 }

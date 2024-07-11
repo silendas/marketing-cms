@@ -56,6 +56,8 @@ public class Response {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } else if (dto.getStatus() == 400 && action == 3) {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } else if (dto.getStatus() == 500 && action == 3) {
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
             return new ResponseEntity<>(response, HttpStatus.OK);
         }

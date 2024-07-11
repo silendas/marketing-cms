@@ -1,17 +1,17 @@
 package com.cms.score.productmanagement.dto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class ProductDto {
     
-    @NotBlank(message = "Product name cannot be empty")
+    @NotBlank(message = "Nama produk harus diisi")
     private String name;
 
-    @NotNull(message = "Product type cannot be empty")
+    @NotNull(message = "Tipe Produk harus diisi")
     private Long productTypeId;
 
 }

@@ -2,8 +2,6 @@ package com.cms.score.productmanagement.controller;
 
 import java.util.Optional;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cms.score.common.path.BasePath;
 import com.cms.score.productmanagement.dto.ProductTypeDto;
 import com.cms.score.productmanagement.service.ProductTypeService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = BasePath.BASE_PRODUCT_TYPE)

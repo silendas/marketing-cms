@@ -14,7 +14,6 @@ import com.cms.score.common.response.Response;
 import com.cms.score.common.response.dto.GlobalDto;
 import com.cms.score.common.reuse.Filter;
 import com.cms.score.productmanagement.model.ProductTarget;
-import com.cms.score.productmanagement.model.ProductTypes;
 import com.cms.score.productmanagement.repository.PagProductTarget;
 import com.cms.score.productmanagement.repository.ProductTargetRepository;
 
@@ -57,9 +56,13 @@ public class ProductTargetService {
     }
 
     public ResponseEntity<Object> deleteProductTarget(Long id) {
-        ProductTarget productTarget = getProductTarget(id).get();
-        productTarget.setIsDeleted(1);
-        repo.save(productTarget);
+        Optional<ProductTarget> productTarget = getProductTarget(id);
+        if (!productTarget.isPresent()) {
+            return Response.buildResponse(new GlobalDto(Message.NOT_FOUND_DEFAULT.getStatusCode(), null,
+                    Message.NOT_FOUND_DEFAULT.getMessage(), null, null, null), 0);
+        }
+        productTarget.get().setIsDeleted(1);
+        repo.save(productTarget.get());
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
     }
