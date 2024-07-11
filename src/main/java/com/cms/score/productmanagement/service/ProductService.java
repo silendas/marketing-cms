@@ -15,6 +15,7 @@ import com.cms.score.common.response.Message;
 import com.cms.score.common.response.Response;
 import com.cms.score.common.response.dto.GlobalDto;
 import com.cms.score.common.reuse.Filter;
+import com.cms.score.common.reuse.PageConvert;
 import com.cms.score.productmanagement.dto.ProductDto;
 import com.cms.score.productmanagement.model.Product;
 import com.cms.score.productmanagement.model.ProductTypes;
@@ -40,7 +41,7 @@ public class ProductService {
                 .and(new Filter<Product>().orderByIdDesc());
         Page<Product> res = pagRepo.findAll(spec, PageRequest.of(page, size));
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCESSFULLY_DEFAULT.getMessage(), res.getPageable(), res.getContent(), null), 1);
+                Message.SUCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
     }
 
     public ResponseEntity<Object> getProductById(Long id) {

@@ -13,6 +13,7 @@ import com.cms.score.common.response.Message;
 import com.cms.score.common.response.Response;
 import com.cms.score.common.response.dto.GlobalDto;
 import com.cms.score.common.reuse.Filter;
+import com.cms.score.common.reuse.PageConvert;
 import com.cms.score.productmanagement.model.ProductTarget;
 import com.cms.score.productmanagement.repository.PagProductTarget;
 import com.cms.score.productmanagement.repository.ProductTargetRepository;
@@ -32,7 +33,7 @@ public class ProductTargetService {
                 .and(new Filter<ProductTarget>().orderByIdDesc());
         Page<ProductTarget> res = pagRepo.findAll(spec, PageRequest.of(page, size));
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCESSFULLY_DEFAULT.getMessage(), res.getContent(), res.getContent(), null), 1);
+                Message.SUCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
     }
 
     public ResponseEntity<Object> getProductTargetById(Long id) {

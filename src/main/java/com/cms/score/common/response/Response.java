@@ -20,7 +20,7 @@ public class Response {
         response.put("message", dto.getMessage());
         response.put("status", dto.getStatus());
         if (dto.getPageable() != null) {
-            response.put("pageable", dto.getPageable());
+            response.put("pagination", dto.getPageable());
         }
         return response;
     }

@@ -33,7 +33,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String token) throws UsernameNotFoundException {
         String nip = jwtService.extractUsername(token);
-        //String token = jwtService.extractTokenSIAP(username);
         String url = this.siapServiceUrl + "/profile?nip=" + nip;
 
         HttpHeaders headers = new HttpHeaders();
