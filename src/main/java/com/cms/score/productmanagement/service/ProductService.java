@@ -7,12 +7,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cms.score.common.response.Message;
 import com.cms.score.common.response.Response;
 import com.cms.score.common.response.dto.GlobalDto;
+import com.cms.score.common.reuse.Filter;
 import com.cms.score.productmanagement.dto.ProductDto;
 import com.cms.score.productmanagement.model.Product;
 import com.cms.score.productmanagement.model.ProductTypes;
@@ -33,7 +35,10 @@ public class ProductService {
     private ProductTypeRepository typeRepo;
 
     public ResponseEntity<Object> getProducts(int page, int size) {
-        Page<Product> res = pagRepo.findAll(PageRequest.of(page, size));
+        Specification<Product> spec = Specification
+                .where(new Filter<Product>().isNotDeleted())
+                .and(new Filter<Product>().orderByIdDesc());
+        Page<Product> res = pagRepo.findAll(spec, PageRequest.of(page, size));
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCESSFULLY_DEFAULT.getMessage(), res.getPageable(), res.getContent(), null), 1);
     }
@@ -53,8 +58,6 @@ public class ProductService {
         Product product = new Product();
         if (dto.getName() == null || dto.getName().isEmpty()) {
             details.add("Name tidak boleh kosong");
-            return Response.buildResponse(new GlobalDto(Message.FAILED_DEFAULT.getStatusCode(), null,
-                    Message.FAILED_DEFAULT.getMessage(), null, null, details), 1);
         }
         product.setName(dto.getName());
         Optional<ProductTypes> productType = getProductType(dto.getProductTypeId());
@@ -62,6 +65,8 @@ public class ProductService {
             product.setProductType(productType.get());
         } else {
             details.add("Tipe Produk tidak ditemukan");
+        }
+        if (details.size() > 0) {
             return Response.buildResponse(new GlobalDto(Message.FAILED_DEFAULT.getStatusCode(), null,
                     Message.FAILED_DEFAULT.getMessage(), null, null, details), 1);
         }
@@ -74,8 +79,6 @@ public class ProductService {
         Optional<Product> product = getProduct(id);
         if (dto.getName() == null || dto.getName().isEmpty()) {
             details.add("Name tidak boleh kosong");
-            return Response.buildResponse(new GlobalDto(Message.FAILED_DEFAULT.getStatusCode(), null,
-                    Message.FAILED_DEFAULT.getMessage(), null, null, details), 1);
         }
         product.get().setName(dto.getName());
         Optional<ProductTypes> productType = getProductType(dto.getProductTypeId());
@@ -83,6 +86,8 @@ public class ProductService {
             product.get().setProductType(productType.get());
         } else {
             details.add("Tipe Produk tidak ditemukan");
+        }
+        if (details.size() > 0) {
             return Response.buildResponse(new GlobalDto(Message.FAILED_DEFAULT.getStatusCode(), null,
                     Message.FAILED_DEFAULT.getMessage(), null, null, details), 1);
         }
@@ -105,9 +110,11 @@ public class ProductService {
                 product.setProductType(productType.get());
             } else {
                 details.add("Tipe Produk tidak ditemukan");
-                return Response.buildResponse(new GlobalDto(Message.FAILED_DEFAULT.getStatusCode(), null,
-                        Message.FAILED_DEFAULT.getMessage(), null, null, details), 1);
             }
+        }
+        if (details.size() > 0) {
+            return Response.buildResponse(new GlobalDto(Message.FAILED_DEFAULT.getStatusCode(), null,
+                    Message.FAILED_DEFAULT.getMessage(), null, null, details), 1);
         }
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCESSFULLY_DEFAULT.getMessage(), null, repo.save(product), null), 0);

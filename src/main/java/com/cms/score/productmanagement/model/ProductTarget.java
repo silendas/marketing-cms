@@ -31,9 +31,9 @@ public class ProductTarget extends BaseEntity{
     private Product product;
 
     @Column(name = "target")
-    private String target;
+    private Double target;
 
     @Column(name = "achievement")
-    private String achievement;
+    private Double achievement;
 
 }

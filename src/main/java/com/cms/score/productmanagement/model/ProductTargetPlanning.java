@@ -15,13 +15,13 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity
-@Table(name = "product_working_paper")
+@Table(name = "product_target_planning")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class ProductWorkingPaper extends BaseEntity{
+public class ProductTargetPlanning extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

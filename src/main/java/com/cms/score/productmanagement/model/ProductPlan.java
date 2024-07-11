@@ -1,5 +1,7 @@
 package com.cms.score.productmanagement.model;
 
+import java.util.Date;
+
 import com.cms.score.common.model.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -25,6 +27,9 @@ public class ProductPlan extends BaseEntity{
     private Long id;
 
     @Column(name = "target")
-    private String date;
+    private Double target;
+
+    @Column(name = "date")
+    private Date date;
     
 }
