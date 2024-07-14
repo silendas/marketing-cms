@@ -38,25 +38,25 @@ public class Response {
     }
 
     // Note : action value if 0 = no data, 1 = with data, 2 = login, 3 = exception
-    public static ResponseEntity<Object> buildResponse(GlobalDto dto, int action) {
+    public static ResponseEntity<Object> buildResponse(GlobalDto globalDto, int action) {
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("meta", meta(dto));
-        if (action == 1) {
-            if (dto.getStatus() != 200) {
-                response.put("data", errorDetails(dto.getDetails()));
+        response.put("meta", meta(globalDto));
+        if (action == 1 || action == 3) {
+            if (globalDto.getStatus() != 200) {
+                response.put("data", errorDetails(globalDto.getDetails()));
             } else {
-                response.put("data", dto.getData());
+                response.put("data", globalDto.getData());
             }
         } else if (action == 2) {
-            response.put("data", successLogin(dto.getToken()));
+            response.put("data", successLogin(globalDto.getToken()));
         }
-        if (dto.getStatus() == 401 && action == 3) {
+        if (globalDto.getStatus() == 401 && action == 3) {
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-        } else if (dto.getStatus() == 404 && action == 3) {
+        } else if (globalDto.getStatus() == 404 && action == 3) {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        } else if (dto.getStatus() == 400 && action == 3) {
+        } else if (globalDto.getStatus() == 400 && action == 3) {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        } else if (dto.getStatus() == 500 && action == 3) {
+        } else if (globalDto.getStatus() == 500 && action == 3) {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
             return new ResponseEntity<>(response, HttpStatus.OK);

@@ -37,8 +37,11 @@ public class ConvertDate {
 
     public static String indonesianFormat(Date dt) {
         DateFormat df = new SimpleDateFormat("dd MMMM yyyy", Locale.forLanguageTag("id-ID"));
-        String dateToString = df.format(dt);
-        return dateToString;
+        if (dt != null) {
+            String dateToString = df.format(dt);
+            return dateToString;
+        }
+        return null;
     }
 
 }

@@ -52,7 +52,7 @@ public class ProductTypeController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> patchProductType(@PathVariable("id") Long id, @Valid @RequestBody ProductTypeDto dto) {
+    public ResponseEntity<Object> patchProductType(@PathVariable("id") Long id, @RequestBody ProductTypeDto dto) {
         return service.patchProductType(id, dto);
     }
 

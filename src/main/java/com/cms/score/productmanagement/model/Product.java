@@ -1,7 +1,5 @@
 package com.cms.score.productmanagement.model;
 
-import org.hibernate.annotations.DialectOverride.GeneratedColumn;
-
 import com.cms.score.common.model.BaseEntity;
 
 import jakarta.persistence.Column;

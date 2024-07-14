@@ -1,9 +1,5 @@
 package com.cms.score.productmanagement.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.cms.score.common.exception.ResourceNotFoundException;
 import com.cms.score.common.response.Message;
 import com.cms.score.common.response.Response;
 import com.cms.score.common.response.dto.GlobalDto;
@@ -40,13 +37,8 @@ public class ProductTypeService {
     }
 
     public ResponseEntity<Object> getProductTypeById(Long id) {
-        Optional<ProductTypes> productType = getProductType(id);
-        if (!productType.isPresent()) {
-            return Response.buildResponse(new GlobalDto(Message.NOT_FOUND_DEFAULT.getStatusCode(), null,
-                    Message.NOT_FOUND_DEFAULT.getMessage(), null, productType, null), 1);
-        }
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCESSFULLY_DEFAULT.getMessage(), null, productType, null), 1);
+                Message.SUCESSFULLY_DEFAULT.getMessage(), null, repo.findById(id), null), 1);
     }
 
     public ResponseEntity<Object> createProductType(ProductTypeDto dto) {
@@ -57,38 +49,30 @@ public class ProductTypeService {
     }
 
     public ResponseEntity<Object> updateProductType(Long id, ProductTypeDto dto) {
-        List<String> details = new ArrayList<>();
-        ProductTypes productType = getProductType(id).get();
+        ProductTypes productType = getProductType(id);
         productType.setName(dto.getName());
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCESSFULLY_DEFAULT.getMessage(), null, repo.save(productType), null), 0);
     }
 
     public ResponseEntity<Object> patchProductType(Long id, ProductTypeDto dto) {
-        ProductTypes productType = getProductType(id).get();
-
+        ProductTypes productType = getProductType(id);
         if (dto.getName() != null && !dto.getName().isEmpty()) {
             productType.setName(dto.getName());
         }
-
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCESSFULLY_DEFAULT.getMessage(), null, repo.save(productType), null), 0);
     }
 
     public ResponseEntity<Object> deleteProductType(Long id) {
-        Optional<ProductTypes> productType = getProductType(id);
-        if (!productType.isPresent()) {
-            return Response.buildResponse(new GlobalDto(Message.NOT_FOUND_DEFAULT.getStatusCode(), null,
-                    Message.NOT_FOUND_DEFAULT.getMessage(), null, null, null), 0);
-        }
-        productType.get().setIsDeleted(1);
-        repo.save(productType.get());
+        ProductTypes productType = getProductType(id);
+        productType.setIsDeleted(1);
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
+                Message.SUCESSFULLY_DEFAULT.getMessage(), null, repo.save(productType), null), 0);
     }
 
-    public Optional<ProductTypes> getProductType(Long id) {
-        return repo.findById(id);
+    public ProductTypes getProductType(Long id) {
+        return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product Type not found"));
     }
 
 }
