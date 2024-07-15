@@ -15,6 +15,7 @@ import com.cms.score.auth.service.AuthService;
 import com.cms.score.common.path.BasePath;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = BasePath.BASE_API)
@@ -24,7 +25,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto dto) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDto dto) {
         return authService.login(dto);
     }
 

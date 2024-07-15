@@ -23,6 +23,12 @@ public class Filter<T> {
         };
     }
 
+    public Specification<T> byId(Long id) {
+        return (root, query, criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get("id"), id);
+        };
+    }
+
     public Specification<T> orderByIdDesc() {
         return (Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
             query.orderBy(criteriaBuilder.desc(root.get("id"))); // Urutkan berdasarkan ID secara descending

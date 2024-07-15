@@ -12,4 +12,11 @@ public interface BasePath {
     String BASE_PRODUCT_TARGET_PLANNING = BASE_API + "/product-papers";
     String BASE_KKP = BASE_API + "/kkp";
 
+    // branch management
+    String BASE_BRANCH = BASE_API + "/branchs";
+    String BASE_BRANCH_TARGET = BASE_API + "/branch-targets";
+    String BASE_BRANCH_TARGET_PLANNING = BASE_API + "/branch-papers";
+    String BASE_BRANCH_KKC = BASE_API + "/kkc";
+
+
 }

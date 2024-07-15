@@ -1,7 +1,6 @@
 package com.cms.score.config.jwt;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +21,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtService {
 
     @Value("${jwt.secret.siap}")
-    private String secret; // Injected from application properties
+    private String secret; 
 
     private final List<String> blacklist = new ArrayList<>();
 

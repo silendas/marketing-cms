@@ -106,7 +106,6 @@ public class KKPService {
                 kkp.setProductTarget(target);
                 if (plan.getTarget() == null || plan.getDate() == null) {
                     details.add("Rencana dengan index : {" + i + "} gagal disimpan, target dan tanggal harus diisi");
-                    continue;
                 } else {
                     kkp.setProductPlan(createPlan(plan));
                     repo.save(kkp);

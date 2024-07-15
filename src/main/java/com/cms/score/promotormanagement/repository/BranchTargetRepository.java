@@ -1,4 +1,4 @@
-package com.cms.score.promotormanagement.repositoy;
+package com.cms.score.promotormanagement.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

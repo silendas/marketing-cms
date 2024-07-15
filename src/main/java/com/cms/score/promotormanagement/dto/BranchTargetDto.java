@@ -8,9 +8,6 @@ import lombok.Data;
 @Data
 public class BranchTargetDto {
 
-    @NotBlank(message = "Branch harus diisi")
-    private Long branchId;
-
     @NotBlank(message = "Target harus diisi")
     private Double target;
 
