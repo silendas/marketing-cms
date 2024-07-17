@@ -8,5 +8,5 @@ import com.cms.score.promotormanagement.model.BranchTarget;
 
 @Repository
 public interface BranchTargetRepository extends JpaRepository<BranchTarget, Long>, JpaSpecificationExecutor<BranchTarget> {
-    
+
 }

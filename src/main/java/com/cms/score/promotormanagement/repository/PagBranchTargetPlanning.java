@@ -4,9 +4,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.cms.score.promotormanagement.model.BranchTargetPLanning;
+import com.cms.score.promotormanagement.model.BranchTarget;
 
 @Repository
-public interface PagBranchTargetPlanning extends PagingAndSortingRepository<BranchTargetPLanning, Long>, JpaSpecificationExecutor<BranchTargetPLanning> {
+public interface PagBranchTargetPlanning extends PagingAndSortingRepository<BranchTarget, Long>, JpaSpecificationExecutor<BranchTarget> {
     
 }

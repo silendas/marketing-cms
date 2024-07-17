@@ -30,6 +30,10 @@ public class ProductTarget extends BaseEntity{
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @ManyToOne
+    @JoinColumn(name = "plan_id")
+    private ProductPlan planning;
+
     @Column(name = "target")
     private Double target;
 

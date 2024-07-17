@@ -18,18 +18,16 @@ import com.cms.score.common.exception.ResourceNotFoundException;
 import com.cms.score.common.response.Message;
 import com.cms.score.common.response.Response;
 import com.cms.score.common.response.dto.GlobalDto;
+import com.cms.score.common.reuse.ConvertDate;
 import com.cms.score.common.reuse.Filter;
 import com.cms.score.common.reuse.PageConvert;
 import com.cms.score.productmanagement.dto.KKPDto;
 import com.cms.score.productmanagement.dto.ProductPlanDto;
-import com.cms.score.productmanagement.dto.ProductTargetDto;
 import com.cms.score.productmanagement.dto.ResponseTargetDto;
 import com.cms.score.productmanagement.model.Product;
 import com.cms.score.productmanagement.model.ProductPlan;
 import com.cms.score.productmanagement.model.ProductTarget;
-import com.cms.score.productmanagement.model.ProductTargetPlanning;
-import com.cms.score.productmanagement.repository.PTPRepository;
-import com.cms.score.productmanagement.repository.PagPTP;
+import com.cms.score.productmanagement.repository.PagProductTarget;
 import com.cms.score.productmanagement.repository.ProductPlanRepository;
 import com.cms.score.productmanagement.repository.ProductRepository;
 import com.cms.score.productmanagement.repository.ProductTargetRepository;
@@ -42,41 +40,38 @@ import jakarta.validation.Valid;
 public class KKPService {
 
     @Autowired
-    private PTPRepository repo;
-
-    @Autowired
-    private PagPTP pagRepo;
-
-    @Autowired
     private ProductPlanRepository planRepo;
 
     @Autowired
-    private ProductTargetRepository targetRepo;
+    private ProductTargetRepository repo;
+
+    @Autowired
+    private PagProductTarget pagRepo;
 
     @Autowired
     private ProductRepository productRepo;
 
     public ResponseEntity<Object> getKKP(Long productId, Date start_date, Date end_date, int page, int size) {
-        Specification<ProductTargetPlanning> spec = Specification
-                .where(new Filter<ProductTargetPlanning>().isNotDeleted())
-                .and(new Filter<ProductTargetPlanning>().orderByIdDesc());
-        Page<ProductTargetPlanning> res = pagRepo.findAll(spec, PageRequest.of(page, size));
+        Specification<ProductTarget> spec = Specification
+                .where(new Filter<ProductTarget>().isNotDeleted())
+                .and(new Filter<ProductTarget>().orderByIdDesc());
+        Page<ProductTarget> res = pagRepo.findAll(spec, PageRequest.of(page, size));
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
     }
 
     public ResponseEntity<Object> getKKPReport(Date start_date, Date end_date, int page, int size) {
-        Specification<ProductTargetPlanning> spec = Specification
-                .where(new Filter<ProductTargetPlanning>().isNotDeleted())
-                .and(new Filter<ProductTargetPlanning>().orderByIdDesc());
+        Specification<ProductTarget> spec = Specification
+                .where(new Filter<ProductTarget>().isNotDeleted())
+                .and(new Filter<ProductTarget>().orderByIdDesc());
 
-        List<ProductTargetPlanning> allResults = repo.findAll(spec);
+        List<ProductTarget> allResults = repo.findAll(spec);
         Map<String, GroupedProductTarget> groupedTargets = new HashMap<>();
-        for (ProductTargetPlanning ptp : allResults) {
-            ProductTarget target = ptp.getProductTarget();
-            String key = target.getProduct().getName() + "|" + target.getTarget() + "|" + target.getAchievement();
-            groupedTargets.computeIfAbsent(key, k -> new GroupedProductTarget(toProductTargetDto(target), new ArrayList<>()))
-                    .getProductPlans().add(ptp.getProductPlan());
+        for (ProductTarget ptp : allResults) {
+            String key = ptp.getProduct().getName() + "|" + ptp.getTarget() + "|" + ptp.getAchievement();
+            groupedTargets
+                    .computeIfAbsent(key, k -> new GroupedProductTarget(toProductTargetDto(ptp), new ArrayList<>()))
+                    .getProductPlans().add(ptp.getPlanning());
         }
         List<GroupedProductTarget> groupedResults = new ArrayList<>(groupedTargets.values());
         int start = Math.min((int) PageRequest.of(page, size).getOffset(), groupedResults.size());
@@ -96,22 +91,25 @@ public class KKPService {
 
     public ResponseEntity<Object> createKKP(@Valid KKPDto dto) {
         List<String> details = new ArrayList<>();
-        ProductTarget target = createTarget(dto.getProductTarget());
-        if (target == null) {
-            details.add("Data gagal disimpan, target produk harus dilengkapi semua");
-        } else {
-            int i = 0;
-            for (ProductPlanDto plan : dto.getProductPlan()) {
-                ProductTargetPlanning kkp = new ProductTargetPlanning();
-                kkp.setProductTarget(target);
-                if (plan.getTarget() == null || plan.getDate() == null) {
-                    details.add("Rencana dengan index : {" + i + "} gagal disimpan, target dan tanggal harus diisi");
-                } else {
-                    kkp.setProductPlan(createPlan(plan));
+        int i = 0;
+        for (ProductPlanDto plan : dto.getProductPlan()) {
+            ProductTarget kkp = new ProductTarget();
+            kkp.setProduct(getProduct(dto.getProductId()));
+            kkp.setTarget(dto.getTarget());
+            kkp.setAchievement(dto.getAchievement());
+            if (plan.getTarget() == null || plan.getDate() == null) {
+                details.add("Rencana dengan index : {" + i + "} gagal disimpan, target dan tanggal harus diisi");
+            } else {
+                ProductPlan createdPlan = createPlan(plan);
+                if (createdPlan != null) {
+                    kkp.setPlanning(createdPlan);
                     repo.save(kkp);
+                } else {
+                    details.add("Rencana dengan index : {" + i + "} gagal disimpan, rencana degan bulan "
+                            + ConvertDate.indonesianFormat(plan.getDate()) + " sudah ada");
                 }
-                i = i + 1;
             }
+            i = i + 1;
         }
         if (details.size() > 0) {
             return Response.buildResponse(new GlobalDto(Message.SUCCESS_FAILED_DEFAULT.getStatusCode(), null,
@@ -122,22 +120,14 @@ public class KKPService {
     }
 
     private ProductPlan createPlan(@Valid ProductPlanDto dto) {
+        List<ProductPlan> existingPlans = planRepo.findByMonth(dto.getDate());
+        if (!existingPlans.isEmpty()) {
+            return null;
+        }
         ProductPlan plan = new ProductPlan();
         plan.setTarget(dto.getTarget());
         plan.setDate(dto.getDate());
         return planRepo.save(plan);
-    }
-
-    private ProductTarget createTarget(@Valid ProductTargetDto dto) {
-        ProductTarget target = new ProductTarget();
-        if (dto.getProductId() == null || dto.getProductId() == 0 || dto.getTarget() == null
-                || dto.getAchievement() == null) {
-            return null;
-        }
-        target.setTarget(dto.getTarget());
-        target.setProduct(getProduct(dto.getProductId()));
-        target.setAchievement(dto.getAchievement());
-        return targetRepo.save(target);
     }
 
     private Product getProduct(Long id) {
@@ -146,7 +136,6 @@ public class KKPService {
 
     private ResponseTargetDto toProductTargetDto(ProductTarget target) {
         ResponseTargetDto dto = new ResponseTargetDto();
-        dto.setIsDeleted(target.getIsDeleted());
         dto.setCreatedDate(target.getCreatedDate());
         dto.setCreatedBy(target.getCreatedBy());
         dto.setUpdatedDate(target.getUpdatedDate());

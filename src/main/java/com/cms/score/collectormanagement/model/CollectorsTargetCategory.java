@@ -1,4 +1,4 @@
-package com.cms.score.promotormanagement.model;
+package com.cms.score.collectormanagement.model;
 
 import com.cms.score.common.model.BaseEntity;
 
@@ -16,29 +16,31 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Entity
-@Table(name = "branch_target")
+@Table(name = "collectors_target_category")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class BranchTarget extends BaseEntity{
-    
+public class CollectorsTargetCategory extends BaseEntity{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "branch_id")
-    private Branch branch;
-
-    @ManyToOne
-    @JoinColumn(name = "plan_id")
-    private BranchPlan branchPlan;
-
-    @Column(name = "percentage")
-    private double cluster;
-
+    @Column(name = "master")
+    private Double master;
+    
+    @Column(name = "senior")
+    private Double senior;
+    
+    @Column(name = "junior")
+    private Double junior;
+    
+    @Column(name = "training")
+    private Double training;
+    
 }

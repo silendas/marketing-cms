@@ -17,6 +17,7 @@ import com.cms.score.common.exception.ResourceNotFoundException;
 import com.cms.score.common.response.Message;
 import com.cms.score.common.response.Response;
 import com.cms.score.common.response.dto.GlobalDto;
+import com.cms.score.common.reuse.ConvertDate;
 import com.cms.score.common.reuse.Filter;
 import com.cms.score.common.reuse.PageConvert;
 import com.cms.score.promotormanagement.dto.BranchTargetDto;
@@ -24,18 +25,18 @@ import com.cms.score.promotormanagement.dto.KKCDto;
 import com.cms.score.promotormanagement.dto.ResponseKKCDto;
 import com.cms.score.promotormanagement.dto.ResponseTargetDto;
 import com.cms.score.promotormanagement.model.Branch;
+import com.cms.score.promotormanagement.model.BranchPlan;
 import com.cms.score.promotormanagement.model.BranchTarget;
-import com.cms.score.promotormanagement.model.BranchTargetPLanning;
 import com.cms.score.promotormanagement.repository.BranchRepository;
-import com.cms.score.promotormanagement.repository.BranchTargetPlanningRepository;
 import com.cms.score.promotormanagement.repository.BranchTargetRepository;
+import com.cms.score.promotormanagement.repository.BranchPlanRepository;
 import com.cms.score.promotormanagement.repository.PagBranchTargetPlanning;
 
 @Service
 public class KKCService {
 
     @Autowired
-    private BranchTargetPlanningRepository repo;
+    private BranchTargetRepository repo;
 
     @Autowired
     private PagBranchTargetPlanning pagRepo;
@@ -44,30 +45,30 @@ public class KKCService {
     private BranchRepository branchRepo;
 
     @Autowired
-    private BranchTargetRepository targetRepo;
+    private BranchPlanRepository targetRepo;
 
     public ResponseEntity<Object> getKKC(int page, int size) {
-        Specification<BranchTargetPLanning> spec = Specification
-                .where(new Filter<BranchTargetPLanning>().isNotDeleted())
-                .and(new Filter<BranchTargetPLanning>().orderByIdDesc());
-        Page<BranchTargetPLanning> res = pagRepo.findAll(spec, PageRequest.of(page, size));
+        Specification<BranchTarget> spec = Specification
+                .where(new Filter<BranchTarget>().isNotDeleted())
+                .and(new Filter<BranchTarget>().orderByIdDesc());
+        Page<BranchTarget> res = pagRepo.findAll(spec, PageRequest.of(page, size));
         return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null, null,
                 PageConvert.convert(res), res.getContent(), null), 1);
     }
 
     public ResponseEntity<Object> getKKCReport(int page, int size) {
-        Specification<BranchTargetPLanning> spec = Specification
-                .where(new Filter<BranchTargetPLanning>().isNotDeleted())
-                .and(new Filter<BranchTargetPLanning>().orderByIdDesc());
+        Specification<BranchTarget> spec = Specification
+                .where(new Filter<BranchTarget>().isNotDeleted())
+                .and(new Filter<BranchTarget>().orderByIdDesc());
 
-        List<BranchTargetPLanning> allResults = repo.findAll(spec);
+        List<BranchTarget> allResults = repo.findAll(spec);
         Map<Long, ResponseKKCDto> groupedTargets = allResults.stream().collect(Collectors.groupingBy(
                 ptp -> ptp.getBranch().getId(),
                 Collectors.collectingAndThen(Collectors.toList(), list -> {
                     Branch branch = list.get(0).getBranch();
                     List<ResponseTargetDto> branchTargets = list.stream()
-                            .map(ptp -> new ResponseTargetDto(ptp.getBranchTarget().getTarget(),
-                                    ptp.getBranchTarget().getDate()))
+                            .map(ptp -> new ResponseTargetDto(ptp.getBranchPlan().getTarget(),
+                                    ptp.getBranchPlan().getDate()))
                             .collect(Collectors.toList());
                     ResponseKKCDto branchDto = new ResponseKKCDto();
                     branchDto.setId(branch.getId());
@@ -82,7 +83,8 @@ public class KKCService {
         Page<ResponseKKCDto> res = new PageImpl<>(paginatedResults, PageRequest.of(page, size),
                 groupedResults.size());
 
-        return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null, Message.SUCESSFULLY_DEFAULT.getMessage(),
+        return Response.buildResponse(new GlobalDto(Message.SUCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCESSFULLY_DEFAULT.getMessage(),
                 PageConvert.convert(res), res.getContent(), null), 1);
     }
 
@@ -95,13 +97,20 @@ public class KKCService {
         List<String> details = new ArrayList<>();
         int i = 0;
         for (BranchTargetDto target : kkc.getBranchTarget()) {
-            BranchTargetPLanning newKKC = new BranchTargetPLanning();
+            BranchTarget newKKC = new BranchTarget();
             newKKC.setBranch(getBranchObj(kkc.getBranchId()));
+            newKKC.setCluster(kkc.getPercentage());
             if (target.getTarget() == null || target.getDate() == null) {
                 details.add("Target dengan index : {" + i + "} gagal disimpan, target dan tanggal harus diisi");
             } else {
-                newKKC.setBranchTarget(createTarget(target));
-                repo.save(newKKC);
+                BranchPlan createdTarget = createTarget(target);
+                if (createdTarget != null) {
+                    newKKC.setBranchPlan(createdTarget);
+                    repo.save(newKKC);
+                } else {
+                    details.add("Rencana dengan index : {" + i + "} gagal disimpan, rencana degan bulan "
+                            + ConvertDate.indonesianFormat(target.getDate()) + " sudah ada");
+                }
             }
             i = i + 1;
         }
@@ -119,16 +128,20 @@ public class KKCService {
         return branchRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Branch is not found"));
     }
 
-    public BranchTarget getTargetObj(Long id) {
+    public BranchPlan getTargetObj(Long id) {
         return targetRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Target is not found"));
     }
 
-    public BranchTargetPLanning getKKCObj(Long id) {
+    public BranchTarget getKKCObj(Long id) {
         return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("KKC is not found"));
     }
 
-    public BranchTarget createTarget(BranchTargetDto target) {
-        BranchTarget newTarget = new BranchTarget();
+    public BranchPlan createTarget(BranchTargetDto target) {
+        List<BranchPlan> existingPlans = targetRepo.findByMonth(target.getDate());
+        if (!existingPlans.isEmpty()) {
+            return null;
+        }
+        BranchPlan newTarget = new BranchPlan();
         newTarget.setTarget(target.getTarget());
         newTarget.setDate(target.getDate());
         return targetRepo.save(newTarget);

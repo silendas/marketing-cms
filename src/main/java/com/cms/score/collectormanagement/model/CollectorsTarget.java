@@ -1,4 +1,4 @@
-package com.cms.score.productmanagement.model;
+package com.cms.score.collectormanagement.model;
 
 import com.cms.score.common.model.BaseEntity;
 
@@ -10,16 +10,21 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 @Entity
-@Table(name = "product_target_planning")
+@Table(name = "collectors_target")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class ProductTargetPlanning extends BaseEntity{
+public class CollectorsTarget extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +32,16 @@ public class ProductTargetPlanning extends BaseEntity{
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "product_target_id")
-    private ProductTarget productTarget;
+    @JoinColumn(name = "collector_id")
+    private CollectorsEntity collectors;
 
     @ManyToOne
-    @JoinColumn(name = "product_plan_id")
-    private ProductPlan productPlan;
+    @JoinColumn(name = "category_id")
+    private CollectorsTargetCategory collectorTargets;
+
+    @ManyToOne
+    @JoinColumn(name = "plan_id")
+    private CollectorsPlanning planning;
+
     
 }

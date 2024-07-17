@@ -1,6 +1,7 @@
-package com.cms.score.promotormanagement.model;
+package com.cms.score.collectormanagement.model;
 
 import com.cms.score.common.model.BaseEntity;
+import com.cms.score.promotormanagement.model.Branch;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,26 +17,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Entity
-@Table(name = "branch_target_planning")
+@Table(name = "collectors")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class BranchTargetPLanning extends BaseEntity{
-    
+public class CollectorsEntity extends BaseEntity{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
+    
     @ManyToOne
     @JoinColumn(name = "branch_id")
     private Branch branch;
 
-    @ManyToOne
-    @JoinColumn(name = "target_id")
-    private BranchTarget branchTarget;
-
+    @Column(name = "total_collectors")
+    private Long totalCollectors;
+    
 }

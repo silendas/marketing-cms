@@ -18,5 +18,7 @@ public interface BasePath {
     String BASE_BRANCH_TARGET_PLANNING = BASE_API + "/branch-papers";
     String BASE_BRANCH_KKC = BASE_API + "/kkc";
 
+    String BASE_COLLECTORS = BASE_API + "/collectors";
+    String BASE_COLLECTOR_KKK = BASE_API + "/kkk";
 
 }

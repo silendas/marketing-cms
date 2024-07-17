@@ -29,16 +29,22 @@ public class Filter<T> {
         };
     }
 
+    public Specification<T> byIdInside(Long id, String whatSide) {
+        return (root, query, criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get(whatSide).get("id"), id);
+        };
+    }
+
     public Specification<T> orderByIdDesc() {
         return (Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-            query.orderBy(criteriaBuilder.desc(root.get("id"))); // Urutkan berdasarkan ID secara descending
+            query.orderBy(criteriaBuilder.desc(root.get("id")));
             return criteriaBuilder.conjunction();
         };
     }
 
     public Specification<T> orderByIdAsc() {
         return (Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-            query.orderBy(criteriaBuilder.asc(root.get("id"))); // Urutkan berdasarkan ID secara descending
+            query.orderBy(criteriaBuilder.asc(root.get("id")));
             return criteriaBuilder.conjunction();
         };
     }

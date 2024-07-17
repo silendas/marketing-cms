@@ -13,7 +13,6 @@ import lombok.Setter;
 @Setter
 public class ResponseTargetDto {
 
-    private int isDeleted;
     private Timestamp createdDate;
     private String createdBy;
     private Timestamp updatedDate;
