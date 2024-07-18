@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cms.score.collectormanagement.dto.CollectorPlanningDto;
-import com.cms.score.collectormanagement.dto.CollectorTargetDto;
+import com.cms.score.collectormanagement.dto.CollectorCategoryDto;
 import com.cms.score.collectormanagement.dto.KKKDto;
 import com.cms.score.collectormanagement.dto.ResponseKKK;
 import com.cms.score.collectormanagement.model.CollectorsEntity;
@@ -92,7 +92,7 @@ public class KKKService {
     public ResponseEntity<Object> createKKK(KKKDto kkk) {
         List<String> details = new ArrayList<>();
         CollectorsEntity collector = getCollector(kkk.getCollectorId());
-        CollectorsTargetCategory target = createTarget(kkk.getCollectorTarget());
+        CollectorsTargetCategory target = createTarget(kkk.getCollectorCategory());
         if (target == null) {
             details.add("Target kolektor harus dilengkapi semua");
         } else {
@@ -120,7 +120,7 @@ public class KKKService {
                 Message.SUCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
     }
 
-    public CollectorsTargetCategory createTarget(CollectorTargetDto dto) {
+    public CollectorsTargetCategory createTarget(CollectorCategoryDto dto) {
         CollectorsTargetCategory target = new CollectorsTargetCategory();
         target.setMaster(dto.getMaster());
         target.setJunior(dto.getJunior());

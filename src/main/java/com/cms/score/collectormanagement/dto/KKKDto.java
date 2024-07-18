@@ -13,7 +13,7 @@ public class KKKDto {
     private Long collectorId;
 
     @NotNull(message = "Target harus diisi")
-    private CollectorTargetDto collectorTarget;
+    private CollectorCategoryDto collectorCategory;
 
     @NotNull(message = "Planning harus diisi")
     private List<CollectorPlanningDto> collectorPlanning;

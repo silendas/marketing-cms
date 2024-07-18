@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class CollectorTargetDto {
+public class CollectorCategoryDto {
 
     @NotBlank(message = "Master harus diisi")
     private Double master;
